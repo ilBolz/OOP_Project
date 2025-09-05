@@ -36,7 +36,7 @@ Write-Host "Premi Ctrl+C per uscire" -ForegroundColor Yellow
 Write-Host ""
 
 try {
-    & java -cp "target/classes;target/dependency/*" org.finance.cli.FinanceCLI
+    & java -cp "target/classes;target/dependency/*" org.finance.cli.PersistentFinanceCLI
 } catch {
     Write-Host "Errore durante l'avvio della CLI" -ForegroundColor Red
 }

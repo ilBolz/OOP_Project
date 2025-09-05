@@ -1,6 +1,7 @@
 package org.finance.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * Implementazione di una transazione di entrata.
@@ -10,6 +11,11 @@ public class IncomeTransaction extends Transaction {
 
     public IncomeTransaction(BigDecimal amount, String description, Category category, String currency) {
         super(amount, description, category, currency);
+    }
+    
+    // Costruttore per il caricamento dal database
+    public IncomeTransaction(String id, BigDecimal amount, String description, Category category, String currency, LocalDateTime timestamp) {
+        super(id, amount, description, category, currency, timestamp);
     }
 
     @Override

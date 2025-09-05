@@ -27,7 +27,7 @@ echo Avvio interfaccia CLI...
 echo Premi Ctrl+C per uscire
 echo.
 
-java -cp "target/classes;target/dependency/*" org.finance.cli.FinanceCLI
+java -cp "target/classes;target/dependency/*" org.finance.cli.PersistentFinanceCLI
 
 echo.
 echo CLI terminata.

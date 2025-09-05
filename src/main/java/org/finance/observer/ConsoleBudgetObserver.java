@@ -1,16 +1,13 @@
 package org.finance.observer;
-
 import org.finance.model.Budget;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
 /**
- * Implementazione concreta di BudgetObserver che mostra notifiche sulla console.
+ * Concrete implementation of BudgetObserver that shows notifications on the console.
  */
 public class ConsoleBudgetObserver implements BudgetObserver {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-
     @Override
     public void onBudgetExceeded(Budget budget, BigDecimal overspentAmount) {
         String timestamp = LocalDateTime.now().format(FORMATTER);
@@ -25,7 +22,6 @@ public class ConsoleBudgetObserver implements BudgetObserver {
         System.out.println("Periodo: " + budget.getPeriod());
         System.out.println("=".repeat(60) + "\n");
     }
-
     @Override
     public void onBudgetNearLimit(Budget budget, BigDecimal remainingAmount) {
         String timestamp = LocalDateTime.now().format(FORMATTER);
@@ -40,7 +36,6 @@ public class ConsoleBudgetObserver implements BudgetObserver {
         System.out.println("Periodo: " + budget.getPeriod());
         System.out.println("-".repeat(50) + "\n");
     }
-
     @Override
     public void onExpenseAdded(Budget budget, BigDecimal expenseAmount) {
         String timestamp = LocalDateTime.now().format(FORMATTER);
@@ -53,3 +48,6 @@ public class ConsoleBudgetObserver implements BudgetObserver {
         System.out.println();
     }
 }
+
+
+

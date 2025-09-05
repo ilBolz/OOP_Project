@@ -1,13 +1,12 @@
 package org.finance.model;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Classe base astratta per tutte le transazioni finanziarie.
- * Implementa il pattern Template Method per la struttura comune delle transazioni.
+ * Abstract base class for all financial transactions.
+ * Implements the Template Method pattern for common transaction structure.
  */
 public abstract class Transaction {
     private final String id;
@@ -24,11 +23,9 @@ public abstract class Transaction {
         this.category = Objects.requireNonNull(category, "Category cannot be null");
         this.currency = Objects.requireNonNull(currency, "Currency cannot be null");
         this.timestamp = LocalDateTime.now();
-        
         validateAmount(amount);
     }
-    
-    // Costruttore per il caricamento dal database
+
     protected Transaction(String id, BigDecimal amount, String description, Category category, String currency, LocalDateTime timestamp) {
         this.id = Objects.requireNonNull(id, "ID cannot be null");
         this.amount = Objects.requireNonNull(amount, "Amount cannot be null");
@@ -36,36 +33,33 @@ public abstract class Transaction {
         this.category = Objects.requireNonNull(category, "Category cannot be null");
         this.currency = Objects.requireNonNull(currency, "Currency cannot be null");
         this.timestamp = Objects.requireNonNull(timestamp, "Timestamp cannot be null");
-        
         validateAmount(amount);
     }
 
     /**
-     * Template method per la validazione dell'importo.
-     * Le sottoclassi possono implementare validazioni specifiche.
+     * Template method for amount validation.
+     * Subclasses can implement specific validations.
      */
     protected abstract void validateAmount(BigDecimal amount);
 
     /**
-     * Template method per ottenere il tipo di transazione.
+     * Template method to get transaction type.
      */
     public abstract TransactionType getType();
 
     /**
-     * Template method per calcolare l'impatto sul bilancio.
-     * Positivo per entrate, negativo per spese.
+     * Template method to calculate balance impact.
+     * Positive for income, negative for expenses.
      */
     public abstract BigDecimal getBalanceImpact();
 
-    // Getters
     public String getId() { return id; }
     public BigDecimal getAmount() { return amount; }
     public String getDescription() { return description; }
     public LocalDateTime getTimestamp() { return timestamp; }
     public Category getCategory() { return category; }
     public String getCurrency() { return currency; }
-    
-    // Metodo helper per ottenere la data (senza orario)
+
     public java.time.LocalDate getDate() { 
         return timestamp.toLocalDate(); 
     }
@@ -89,3 +83,6 @@ public abstract class Transaction {
                 getClass().getSimpleName(), id, amount, description, category.getName(), timestamp);
     }
 }
+
+
+

@@ -1,13 +1,10 @@
 package org.finance.factory;
-
 import org.finance.model.*;
 import java.math.BigDecimal;
-
 /**
  * Factory for the dynamic creation of transactions.
  */
 public class TransactionFactory {
-
     /**
      * Creates a transaction of the specified type.
      *
@@ -19,7 +16,6 @@ public class TransactionFactory {
      * @return The created transaction
      * @throws IllegalArgumentException if the type is not supported
      */
-
     public static Transaction createTransaction(TransactionType type, BigDecimal amount, 
                                                String description, Category category, String currency) {
         return switch (type) {
@@ -29,7 +25,6 @@ public class TransactionFactory {
             default -> throw new IllegalArgumentException("Unsupported transaction type: " + type);
         };
     }
-
     /**
      * Create an income transaction.
      */
@@ -37,7 +32,6 @@ public class TransactionFactory {
                                                            Category category, String currency) {
         return new IncomeTransaction(amount, description, category, currency);
     }
-
     /**
      * Create an expense transaction.
      */
@@ -45,7 +39,6 @@ public class TransactionFactory {
                                                              Category category, String currency) {
         return new ExpenseTransaction(amount, description, category, currency);
     }
-
     /**
      * Create an investment transaction.
      */
@@ -54,3 +47,6 @@ public class TransactionFactory {
         return new InvestmentTransaction(amount, description, category, currency);
     }
 }
+
+
+

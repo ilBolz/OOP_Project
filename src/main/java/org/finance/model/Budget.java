@@ -1,5 +1,4 @@
 package org.finance.model;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -7,7 +6,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Rappresenta un budget finanziario per una categoria specifica in un periodo di tempo.
+ * Represents a financial budget for a specific category in a time period.
  */
 public class Budget {
     private final String id;
@@ -26,13 +25,10 @@ public class Budget {
         this.currency = Objects.requireNonNull(currency, "Currency cannot be null");
         this.spent = BigDecimal.ZERO;
         this.createdAt = LocalDate.now();
-
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Budget amount must be positive");
         }
     }
-    
-    // Costruttore per il caricamento dal database
     public Budget(String id, Category category, BigDecimal amount, YearMonth period) {
         this.id = Objects.requireNonNull(id, "ID cannot be null");
         this.category = Objects.requireNonNull(category, "Category cannot be null");
@@ -41,12 +37,10 @@ public class Budget {
         this.currency = "EUR"; // Default currency dal database
         this.spent = BigDecimal.ZERO;
         this.createdAt = LocalDate.now();
-
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Budget amount must be positive");
         }
     }
-
     /**
      * Aggiunge una spesa al budget corrente.
      */
@@ -56,7 +50,6 @@ public class Budget {
         }
         this.spent = this.spent.add(expenseAmount);
     }
-
     /**
      * Rimuove una spesa dal budget corrente (per undo operations).
      */
@@ -69,14 +62,12 @@ public class Budget {
             this.spent = BigDecimal.ZERO;
         }
     }
-
     /**
      * Calcola l'importo rimanente nel budget.
      */
     public BigDecimal getRemainingAmount() {
         return amount.subtract(spent);
     }
-
     /**
      * Calcola la percentuale di budget utilizzata.
      */
@@ -87,29 +78,24 @@ public class Budget {
         return spent.divide(amount, 4, java.math.RoundingMode.HALF_UP)
                    .multiply(BigDecimal.valueOf(100));
     }
-
     /**
-     * Verifica se il budget è stato superato.
+     * Verifica se il budget � stato superato.
      */
     public boolean isExceeded() {
         return spent.compareTo(amount) > 0;
     }
-
     /**
-     * Verifica se il budget è vicino al limite (>= 90%).
+     * Verifica se il budget � vicino al limite (>= 90%).
      */
     public boolean isNearLimit() {
         return getUsagePercentage().compareTo(BigDecimal.valueOf(90)) >= 0;
     }
-
     /**
      * Resetta le spese del budget (per un nuovo periodo).
      */
     public void resetSpent() {
         this.spent = BigDecimal.ZERO;
     }
-
-    // Getters
     public String getId() { return id; }
     public Category getCategory() { return category; }
     public BigDecimal getAmount() { return amount; }
@@ -117,7 +103,6 @@ public class Budget {
     public String getCurrency() { return currency; }
     public BigDecimal getSpent() { return spent; }
     public LocalDate getCreatedAt() { return createdAt; }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -125,15 +110,16 @@ public class Budget {
         Budget budget = (Budget) o;
         return Objects.equals(id, budget.id);
     }
-
     @Override
     public int hashCode() {
         return Objects.hash(id);
     }
-
     @Override
     public String toString() {
         return String.format("Budget{category='%s', amount=%s, spent=%s, period=%s, remaining=%s}", 
                 category.getName(), amount, spent, period, getRemainingAmount());
     }
 }
+
+
+

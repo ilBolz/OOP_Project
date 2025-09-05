@@ -1,0 +1,57 @@
+@startuml Transaction_Insert_Sequence
+
+!theme plain
+title Inserimento Transazione - Sequence Diagram
+
+actor User as U
+participant "CLI" as CLI
+participant "FinanceService" as Service
+participant "TransactionFactory" as Factory
+participant "Database" as DB
+participant "BudgetObserver" as Observer
+
+== Inserimento Transazione ==
+
+U -> CLI: Inserisce dati transazione
+activate CLI
+
+CLI -> CLI: Valida input
+note right: Exception Shielding:\nValidazione e gestione errori
+
+CLI -> Factory: createTransaction(type, amount, description)
+activate Factory
+Factory --> CLI: Transaction creata
+deactivate Factory
+note right of Factory: **Factory Pattern**\nCreazione dinamica transazioni
+
+CLI -> Service: addTransaction(transaction)
+activate Service
+
+Service -> DB: save(transaction)
+activate DB
+DB --> Service: Transazione salvata
+deactivate DB
+
+== Notifiche Budget ==
+
+alt Se transazione è una spesa
+    Service -> Observer: Controlla budget
+    activate Observer
+    
+    alt Budget superato
+        Observer -> U: ⚠️ Budget superato!
+    else Budget OK
+        Observer -> U: ✅ Transazione registrata
+    end
+    
+    deactivate Observer
+    note right of Observer: **Observer Pattern**\nNotifiche budget
+end
+
+Service --> CLI: Successo
+deactivate Service
+
+CLI -> U: Conferma operazione
+deactivate CLI
+
+@enduml

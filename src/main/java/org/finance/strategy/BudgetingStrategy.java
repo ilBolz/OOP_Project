@@ -1,38 +1,25 @@
 package org.finance.strategy;
-
 import org.finance.model.Budget;
 import org.finance.model.Category;
 import java.math.BigDecimal;
-import java.time.YearMonth;
-import java.util.List;
-
 /**
- * Interfaccia Strategy per algoritmi di budgeting.
- * Implementa il pattern Strategy per diversi approcci al budgeting.
+ * Strategy interface for budgeting algorithms.
+ * Implements the Strategy pattern for different budgeting approaches.
  */
 public interface BudgetingStrategy {
-    
     /**
-     * Calcola il budget suggerito per una categoria basato sulla strategia implementata.
+     * Calculates the suggested budget for a category based on the implemented strategy.
      * 
-     * @param category La categoria per cui calcolare il budget
-     * @param totalIncome L'entrata totale del periodo
-     * @param historicalTransactions Lista delle transazioni storiche per analisi
-     * @param period Il periodo per cui calcolare il budget
-     * @param currency La valuta del budget
-     * @return Il budget suggerito
+     * @param category The category for which to calculate the budget
+     * @param totalIncome The total income for the period
+     * @return The suggested budget
      */
-    Budget calculateSuggestedBudget(Category category, BigDecimal totalIncome, 
-                                   List<org.finance.model.Transaction> historicalTransactions,
-                                   YearMonth period, String currency);
-    
+    Budget calculateSuggestedBudget(Category category, BigDecimal totalIncome);
     /**
-     * Ottiene il nome della strategia.
+     * Gets the strategy name.
      */
     String getStrategyName();
-    
-    /**
-     * Ottiene una descrizione della strategia.
-     */
-    String getDescription();
 }
+
+
+

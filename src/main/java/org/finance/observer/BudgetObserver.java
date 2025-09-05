@@ -1,25 +1,25 @@
 package org.finance.observer;
-
 import org.finance.model.Budget;
-
 /**
- * Interfaccia Observer per ricevere notifiche relative ai budget.
- * Implementa il pattern Observer per notificare i superamenti di budget.
+ * Observer interface for receiving budget-related notifications.
+ * Implements the Observer pattern to notify about budget overruns.
  */
 public interface BudgetObserver {
-    
     /**
-     * Notifica quando un budget viene superato.
+     * Notification when a budget is exceeded.
      */
     void onBudgetExceeded(Budget budget, java.math.BigDecimal overspentAmount);
     
     /**
-     * Notifica quando un budget si avvicina al limite (>= 90%).
+     * Notification when a budget is near the limit (>= 90%).
      */
     void onBudgetNearLimit(Budget budget, java.math.BigDecimal remainingAmount);
     
     /**
-     * Notifica quando viene effettuata una spesa che impatta un budget.
+     * Notification when an expense is made that impacts a budget.
      */
     void onExpenseAdded(Budget budget, java.math.BigDecimal expenseAmount);
 }
+
+
+

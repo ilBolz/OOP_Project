@@ -1,4 +1,4 @@
-# Personal Finance Manager
+﻿# Personal Finance Manager
 
 ## Overview
 
@@ -42,7 +42,9 @@ L’applicazione è sicura, manutenibile e modulare, pensata per dimostrare cono
 
 ### Opzionali
 
-- **Strategy** → diversi algoritmi di budgeting (conservativo, aggressivo).
+### Opzionali
+
+- **Strategy** → due algoritmi di budgeting semplificati (conservativo 15%, aggressivo 30%).
 - **Observer** → notifiche agli utenti quando si superano i limiti di spesa.
 - **Builder** → generazione report finanziari step-by-step.
 - **Chain of Responsibility** → validazione input multipla (data, importo, valuta).
@@ -77,14 +79,14 @@ L’applicazione è sicura, manutenibile e modulare, pensata per dimostrare cono
 
 Il progetto implementa la persistenza dei dati utilizzando un database H2 locale che garantisce:
 
-### 🗄️ **Database H2**
+### Database H2
 
 - **Database locale**: `./data/finance_db` (creato automaticamente)
 - **Connessione JDBC**: gestita tramite il pattern Singleton (`DatabaseManager`)
 - **Schema automatico**: tabelle create all'avvio dell'applicazione
 - **Transazioni ACID**: garantisce integrità dei dati
 
-### 📊 **Schema del Database**
+### Schema del Database
 
 ```sql
 -- Tabella Categorie (supporta gerarchie)
@@ -119,7 +121,7 @@ CREATE TABLE budgets (
 );
 ```
 
-### 🏗️ **Pattern Repository**
+### **Pattern Repository**
 
 - **`Repository<T, ID>`**: interfaccia generica per operazioni CRUD
 - **`TransactionRepository`**: gestione transazioni con query avanzate
@@ -134,19 +136,74 @@ CREATE TABLE budgets (
 
 ### 💾 **Funzionalità Implementate**
 
-- ✅ **Salvataggio automatico**: ogni operazione persiste immediatamente
-- ✅ **Caricamento all'avvio**: dati recuperati automaticamente dal database
-- ✅ **Query ottimizzate**: ricerche per data, categoria, tipo, importo
-- ✅ **Integrità referenziale**: vincoli di chiave esterna
-- ✅ **Gestione errori**: rollback automatico in caso di errori
+- **Salvataggio automatico**: ogni operazione persiste immediatamente
+- **Caricamento all'avvio**: dati recuperati automaticamente dal database
+- **Query ottimizzate**: ricerche per data, categoria, tipo, importo
+- **Integrità referenziale**: vincoli di chiave esterna
+- **Gestione errori**: rollback automatico in caso di errori
 
 ---
 
-## Diagrammi UML
+## Diagrammi UML 📐
 
-1. **Class Diagram** con categorie, transazioni, pattern principali.
-2. **Sequence Diagram** per inserimento transazione e generazione report.  
-   (_allegati nel progetto in `/docs`_)
+Il progetto include **diagrammi UML completi** come richiesto dai deliverable dell'assignment:
+
+### **Diagrammi Disponibili** (cartella `/docs`)
+
+1. **Class Diagram** (`class-diagram.puml`)
+
+   - Struttura completa del sistema con tutti i design pattern
+   - Relazioni tra classi e interfacce
+   - Evidenza dei pattern Factory, Composite, Iterator, Strategy, Observer, Singleton
+   - Repository layer con generics e dependency injection
+
+2. **Transaction Sequence** (`transaction-sequence.puml`)
+
+   - Flusso completo di inserimento transazione
+   - Pattern Factory in azione per creazione transazioni
+   - Exception shielding e validazione input
+   - Pattern Observer per notifiche budget
+   - Persistenza database con try-with-resources
+
+3. **Report Generation Sequence** (`report-sequence.puml`)
+
+   - Processo di generazione report finanziari
+   - Pattern Iterator per navigazione storica
+   - Stream API e aggregazioni dati
+   - Pattern Strategy per confronto algoritmi budgeting
+   - Pattern Composite per analisi categorie gerarchiche
+
+4. **Architecture Overview** (`architecture-diagram.puml`)
+   - Visione d'insieme dell'architettura a layer
+   - Tecnologie utilizzate (Java SE 17, H2, Guice, JUnit)
+   - Pattern implementati cross-cutting
+   - Integrazione di tutte le componenti
+
+### 🔧 **Come Visualizzare i Diagrammi**
+
+```bash
+# 1. VS Code con PlantUML Extension (CONSIGLIATO)
+# Installa l'estensione PlantUML, poi apri qualsiasi file .puml e premi Alt+D
+
+# 2. Online PlantUML Viewer
+# Copia il contenuto su plantuml.com
+
+# 3. Command Line (se hai PlantUML JAR)
+java -jar plantuml.jar docs/*.puml
+```
+
+### **Documentazione Pattern**
+
+Ogni diagramma include **annotazioni dettagliate** che evidenziano:
+
+- **Pattern obbligatori**: Factory, Composite, Iterator, Exception Shielding
+- **Pattern bonus**: Strategy, Observer, Singleton, IoC
+- **Tecnologie core**: Collections, Generics, Java I/O, Logging, JUnit
+- **Sicurezza**: Input sanitization, Exception handling, Type safety
+
+I diagrammi sono **pronti per l'interview** e dimostrano la comprensione approfondita di architettura e design pattern!
+
+**Tutti i file sono in**: `./docs/` con README dedicato per la navigazione.
 
 ---
 
@@ -198,44 +255,44 @@ CREATE TABLE budgets (
 
    **Nota**: Se ricevi errori di `ClassNotFoundException`, assicurati che le dipendenze siano copiate nella cartella `target/dependency/` con il comando `mvn dependency:copy-dependencies`.
 
-## Interfaccia CLI Interattiva 🖥️
+## Interfaccia CLI Interattiva
 
 L'applicazione include una **CLI (Command Line Interface)** completa e intuitiva che permette di:
 
-### 💰 Gestione Transazioni
+### **Gestione Transazioni**
 
-- ➕ Aggiungere entrate, spese e investimenti
-- 📋 Visualizzare storico transazioni
-- 🔍 Cercare transazioni per descrizione/categoria
-- 📊 Navigare con il pattern Iterator
+- Aggiungere entrate, spese e investimenti
+- Visualizzare storico transazioni
+- Cercare transazioni per descrizione/categoria
+- Navigare con il pattern Iterator
 
-### 📊 Gestione Budget
+### **Gestione Budget**
 
-- ➕ Creare budget per categorie e periodi
-- 📈 Monitorare utilizzo e soglie
-- 🚨 Ricevere notifiche automatiche (Pattern Observer)
-- 📉📈 Scegliere tra strategie conservative/aggressive (Pattern Strategy)
+- Creare budget per categorie e periodi
+- Monitorare utilizzo e soglie
+- Ricevere notifiche automatiche (Pattern Observer)
+- Scegliere tra strategie conservative/aggressive (Pattern Strategy)
 
-### 📁 Gestione Categorie
+### **Gestione Categorie**
 
-- 📋 Visualizzare struttura gerarchica (Pattern Composite)
-- ➕ Aggiungere nuove categorie e sottocategorie
-- 🏗️ Oltre 50 categorie predefinite già configurate
+- Visualizzare struttura gerarchica (Pattern Composite)
+- Aggiungere nuove categorie e sottocategorie
+- Oltre 50 categorie predefinite già configurate
 
-### 📈 Report e Statistiche
+### **Report e Statistiche**
 
-- 💰 Bilancio mensile dettagliato
-- 📊 Spese raggruppate per categoria
-- 📈 Trend degli ultimi mesi
-- 📋 Statistiche budget e utilizzo
+- Bilancio mensile dettagliato
+- Spese raggruppate per categoria
+- Trend degli ultimi mesi
+- Statistiche budget e utilizzo
 
-### ⚙️ Impostazioni
+### **Impostazioni**
 
 - 💱 Gestione valute multiple
 - 🔧 Configurazione strategie di budgeting
 - 🎨 Interfaccia colorata e user-friendly
 
-### 🎯 Caratteristiche CLI
+### **Caratteristiche CLI**
 
 - **Menu intuitivi** con icone e colori
 - **Validazione input** robusta con messaggi chiari
@@ -286,41 +343,41 @@ src/
         └── BudgetObserverTest.java
 ```
 
-## Funzionalità Implementate ✅
+## Funzionalità Implementate
 
 ### Pattern Implementati
 
-- ✅ **Factory** → Creazione dinamica delle transazioni
-- ✅ **Composite** → Gestione gerarchica delle categorie
-- ✅ **Iterator** → Navigazione storica delle transazioni
-- ✅ **Observer** → Notifiche superamento budget
-- ✅ **Strategy** → Algoritmi di budgeting (conservativo/aggressivo)
-- ✅ **Template Method** → Struttura comune delle transazioni
+- **Factory** → Creazione dinamica delle transazioni
+- **Composite** → Gestione gerarchica delle categorie
+- **Iterator** → Navigazione storica delle transazioni
+- **Observer** → Notifiche superamento budget
+- **Strategy** → Algoritmi di budgeting (conservativo/aggressivo)
+- **Template Method** → Struttura comune delle transazioni
 
 ### Funzionalità Core
 
-- ✅ Registrazione entrate, spese e investimenti
-- ✅ Organizzazione in categorie e sottocategorie gerarchiche
-- ✅ Calcolo automatico impatto sul bilancio
-- ✅ Sistema di budget con notifiche intelligenti
-- ✅ Validazione input multilivello con sanitizzazione
-- ✅ **CLI interattiva completa e user-friendly**
-- ✅ **50+ categorie predefinite pronte all'uso**
-- ✅ **Report dettagliati e statistiche avanzate**
-- ✅ Test unitari completi (19/19 ✅)
+- Registrazione entrate, spese e investimenti
+- Organizzazione in categorie e sottocategorie gerarchiche
+- Calcolo automatico impatto sul bilancio
+- Sistema di budget con notifiche intelligenti
+- Validazione input multilivello con sanitizzazione
+- **CLI interattiva completa e user-friendly**
+- **50+ categorie predefinite pronte all'uso**
+- **Report dettagliati e statistiche avanzate**
+- Test unitari completi (19/19)
 
 ### Sicurezza
 
-- ✅ Validazione parametri di input
-- ✅ Gestione eccezioni controllate
-- ✅ Immutabilità dove appropriata
-- ✅ Pattern per evitare errori comuni
+- Validazione parametri di input
+- Gestione eccezioni controllate
+- Immutabilità dove appropriata
+- Pattern per evitare errori comuni
 
 ## Demo dell'Applicazione
 
 L'applicazione include **tre modalità di utilizzo**:
 
-### 🎯 1. Demo Pattern (Base)
+### **1. Demo Pattern (Base)**
 
 ```bash
 mvn exec:java
@@ -362,7 +419,7 @@ Interfaccia utente completa per uso reale con menu intuitivi e funzionalità ava
 - [ ] Pattern Builder per report complessi
 - [ ] Chain of Responsibility per validazioni
 - [ ] Pattern Decorator per report avanzati
-- ✅ **Interfaccia CLI interattiva** → **COMPLETATA!**
+- **Interfaccia CLI interattiva** → **COMPLETATA!**
 - [ ] Generazione report PDF
 - [ ] Interfaccia grafica (GUI) con JavaFX
 - [ ] API REST per integrazione web
@@ -371,7 +428,7 @@ Interfaccia utente completa per uso reale con menu intuitivi e funzionalità ava
 
 ## 🎉 Risultato Finale
 
-✅ **Progetto completo e funzionante** con:
+**Progetto completo e funzionante** con:
 
 - **6 Design Pattern** implementati correttamente
 - **CLI interattiva** professionale e user-friendly

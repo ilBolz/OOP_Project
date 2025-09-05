@@ -1,19 +1,25 @@
 package org.finance.cli;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.finance.config.DefaultCategories;
 import org.finance.factory.TransactionFactory;
-import org.finance.model.*;
-import org.finance.observer.*;
-import org.finance.strategy.*;
+import org.finance.model.Budget;
+import org.finance.model.Category;
+import org.finance.model.Transaction;
+import org.finance.observer.ConsoleBudgetObserver;
 import org.finance.service.FinanceService;
-import org.apache.commons.text.StringEscapeUtils;
+import org.finance.strategy.AggressiveBudgetingStrategy;
+import org.finance.strategy.BudgetingStrategy;
+import org.finance.strategy.ConservativeBudgetingStrategy;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
 /**
  * Interfaccia a linea di comando per il Personal Finance Manager.
@@ -28,26 +34,24 @@ public class FinanceCLI {
     public FinanceCLI() {
         this.financeService = new FinanceService();
         this.categories = DefaultCategories.createDefaultCategories();
-        
-        // Inizializza le categorie nel servizio
+
         for (Category category : categories) {
             financeService.addCategory(category);
         }
-        
-        // Configura observer per notifiche
+
         ConsoleBudgetObserver observer = new ConsoleBudgetObserver();
         financeService.addBudgetObserver(observer);
     }
 
     public void start() {
         printWelcomeMessage();
-        
+
         while (running) {
             printMainMenu();
             String choice = readUserInput("Seleziona un'opzione: ");
             processMainMenuChoice(choice);
         }
-        
+
         System.out.println("\n Grazie per aver usato Personal Finance Manager!");
     }
 
@@ -80,21 +84,18 @@ public class FinanceCLI {
                 case "3" -> showCategoryMenu();
                 case "4" -> showReportsMenu();
                 case "5" -> showSettingsMenu();
-                case "0" -> {
-                    running = false;
-                    return;
-                }
+                case "0" -> running = false;
                 default -> System.out.println("Opzione non valida. Riprova.");
             }
         } catch (Exception e) {
-            System.out.println("Errore: " + e.getMessage());
             System.out.println("Riprova con un'opzione valida.");
+            System.out.println("Inserisci un numero tra 0 e 5");
         }
     }
 
     private void showTransactionMenu() {
         boolean backToMain = false;
-        
+
         while (!backToMain) {
             System.out.println("\n GESTIONE TRANSAZIONI");
             System.out.println("-".repeat(30));
@@ -133,15 +134,15 @@ public class FinanceCLI {
             String currency = readCurrency();
 
             Transaction transaction = TransactionFactory.createIncomeTransaction(
-                amount, sanitizeInput(description), category, currency);
-            
+                    amount, sanitizeInput(description), category, currency);
+
             financeService.addTransaction(transaction);
-            
+
             System.out.println("Entrata aggiunta con successo!");
             System.out.println("Importo: " + amount + " " + currency);
             System.out.println("Descrizione: " + description);
             System.out.println("Categoria: " + category.getFullPath());
-            
+
         } catch (Exception e) {
             System.out.println("Errore durante l'aggiunta dell'entrata: " + e.getMessage());
         }
@@ -158,17 +159,17 @@ public class FinanceCLI {
             String currency = readCurrency();
 
             Transaction transaction = TransactionFactory.createExpenseTransaction(
-                amount, sanitizeInput(description), category, currency);
-            
+                    amount, sanitizeInput(description), category, currency);
+
             financeService.addTransaction(transaction);
-            
+
             System.out.println("Spesa aggiunta con successo!");
             System.out.println("Importo: " + amount + " " + currency);
             System.out.println("Descrizione: " + description);
             System.out.println("Categoria: " + category.getFullPath());
-            
+
         } catch (Exception e) {
-            System.out.println("Errore durante l'aggiunta della spesa: " + e.getMessage());
+            System.out.println("Errore durante l'aggiunta della spesa.");
         }
     }
 
@@ -183,17 +184,17 @@ public class FinanceCLI {
             String currency = readCurrency();
 
             Transaction transaction = TransactionFactory.createInvestmentTransaction(
-                amount, sanitizeInput(description), category, currency);
-            
+                    amount, sanitizeInput(description), category, currency);
+
             financeService.addTransaction(transaction);
-            
+
             System.out.println("Investimento aggiunto con successo!");
             System.out.println("Importo: " + amount + " " + currency);
             System.out.println("Descrizione: " + description);
             System.out.println("Categoria: " + category.getFullPath());
-            
+
         } catch (Exception e) {
-            System.out.println("Errore durante l'aggiunta dell'investimento: " + e.getMessage());
+            System.out.println("Errore durante l'aggiunta dell'investimento");
         }
     }
 
@@ -202,71 +203,66 @@ public class FinanceCLI {
         System.out.println("-".repeat(30));
 
         List<Transaction> transactions = financeService.getAllTransactions();
-        
+
         if (transactions.isEmpty()) {
             System.out.println("Nessuna transazione trovata.");
             return;
         }
 
-        // Ordina per data (più recenti prima)
         transactions.sort((t1, t2) -> t2.getTimestamp().compareTo(t1.getTimestamp()));
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        
+
         for (int i = 0; i < Math.min(transactions.size(), 20); i++) {
             Transaction t = transactions.get(i);
-            String icon = getTransactionIcon(t.getType());
             String impact = t.getBalanceImpact().compareTo(BigDecimal.ZERO) >= 0 ? "+" : "";
-            
+
             System.out.printf("%s %s | %s%s %s | %s | %s%n",
-                icon,
-                t.getTimestamp().format(formatter),
-                impact,
-                t.getBalanceImpact(),
-                t.getCurrency(),
-                t.getCategory().getName(),
-                t.getDescription()
+                    t.getTimestamp().format(formatter),
+                    impact,
+                    t.getBalanceImpact(),
+                    t.getCurrency(),
+                    t.getCategory().getName(),
+                    t.getDescription()
             );
         }
 
         if (transactions.size() > 20) {
             System.out.println("... e altre " + (transactions.size() - 20) + " transazioni");
         }
-        
+
         System.out.println("\nTotale transazioni: " + transactions.size());
     }
 
     private void searchTransactions() {
         System.out.println("\n CERCA TRANSAZIONI");
         System.out.println("-".repeat(25));
-        
+
         String searchTerm = readUserInput("Inserisci termine di ricerca (descrizione): ");
         List<Transaction> results = financeService.searchTransactions(searchTerm);
-        
+
         if (results.isEmpty()) {
             System.out.println(" Nessuna transazione trovata per: " + searchTerm);
             return;
         }
-        
+
         System.out.println(" Trovate " + results.size() + " transazioni:");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        
+
         for (Transaction t : results) {
-            String icon = getTransactionIcon(t.getType());
             System.out.printf("%s %s | %s %s | %s | %s%n",
-                icon,
-                t.getTimestamp().format(formatter),
-                t.getBalanceImpact(),
-                t.getCurrency(),
-                t.getCategory().getName(),
-                t.getDescription()
+                    t.getTimestamp().format(formatter),
+                    t.getBalanceImpact(),
+                    t.getCurrency(),
+                    t.getCategory().getName(),
+                    t.getDescription()
             );
         }
     }
 
     private void showBudgetMenu() {
         boolean backToMain = false;
-        
+
         while (!backToMain) {
             System.out.println("\n GESTIONE BUDGET");
             System.out.println("-".repeat(25));
@@ -318,7 +314,7 @@ public class FinanceCLI {
         System.out.println("-".repeat(20));
 
         List<Budget> budgets = financeService.getAllBudgets();
-        
+
         if (budgets.isEmpty()) {
             System.out.println("Nessun budget trovato.");
             return;
@@ -326,8 +322,8 @@ public class FinanceCLI {
 
         for (Budget budget : budgets) {
             String status = budget.isExceeded() ? " SUPERATO" :
-                           budget.isNearLimit() ? "️ VICINO AL LIMITE" : "OK";
-            
+                    budget.isNearLimit() ? "️ VICINO AL LIMITE" : "OK";
+
             System.out.println("\n " + budget.getCategory().getFullPath());
             System.out.println(" Budget: " + budget.getAmount() + " " + budget.getCurrency());
             System.out.println(" Speso: " + budget.getSpent() + " " + budget.getCurrency());
@@ -341,9 +337,9 @@ public class FinanceCLI {
     private void showBudgetStats() {
         System.out.println("\n📈 STATISTICHE BUDGET");
         System.out.println("-".repeat(30));
-        
+
         List<Budget> budgets = financeService.getAllBudgets();
-        
+
         if (budgets.isEmpty()) {
             System.out.println("📭 Nessun budget per generare statistiche.");
             return;
@@ -354,21 +350,21 @@ public class FinanceCLI {
         long ok = budgets.size() - exceeded - nearLimit;
 
         System.out.println("Riepilogo Budget:");
-        System.out.println("   ✅ OK: " + ok);
-        System.out.println("   ⚠️ Vicini al limite: " + nearLimit);
-        System.out.println("   🚨 Superati: " + exceeded);
-        System.out.println("   📝 Totale: " + budgets.size());
+        System.out.println("OK: " + ok);
+        System.out.println("Vicini al limite: " + nearLimit);
+        System.out.println("Superati: " + exceeded);
+        System.out.println("Totale: " + budgets.size());
     }
 
     private void showCategoryMenu() {
         boolean backToMain = false;
-        
+
         while (!backToMain) {
-            System.out.println("\n📁 GESTIONE CATEGORIE");
+            System.out.println("\n GESTIONE CATEGORIE");
             System.out.println("-".repeat(25));
-            System.out.println("1. 📋 Visualizza Categorie");
-            System.out.println("2. ➕ Aggiungi Categoria");
-            System.out.println("0. ⬅️  Torna al Menu Principale");
+            System.out.println("1. Visualizza Categorie");
+            System.out.println("2. Aggiungi Categoria");
+            System.out.println("0. Torna al Menu Principale");
             System.out.println("-".repeat(25));
 
             String choice = readUserInput("Seleziona un'opzione: ");
@@ -396,9 +392,9 @@ public class FinanceCLI {
     private void printCategoryTree(Category category, int level) {
         String indent = "  ".repeat(level);
         String icon = level == 0 ? "+" : "-";
-        
+
         System.out.println(indent + icon + " " + category.getName());
-        
+
         for (Category sub : category.getSubcategories()) {
             printCategoryTree(sub, level + 1);
         }
@@ -411,12 +407,12 @@ public class FinanceCLI {
         try {
             String name = readUserInput("Nome categoria: ");
             String description = readUserInput("Descrizione (opzionale): ");
-            
+
             Category newCategory = new Category(sanitizeInput(name), sanitizeInput(description));
-            
+
             System.out.println("Vuoi aggiungere questa categoria come sottocategoria? (s/n): ");
             String addAsSub = readUserInput("").toLowerCase();
-            
+
             if (addAsSub.startsWith("s")) {
                 Category parent = selectCategory("padre");
                 parent.addSubcategory(newCategory);
@@ -426,7 +422,7 @@ public class FinanceCLI {
                 financeService.addCategory(newCategory);
                 System.out.println("Categoria principale aggiunta!");
             }
-            
+
         } catch (Exception e) {
             System.out.println("Errore durante l'aggiunta della categoria: " + e.getMessage());
         }
@@ -434,14 +430,14 @@ public class FinanceCLI {
 
     private void showReportsMenu() {
         boolean backToMain = false;
-        
+
         while (!backToMain) {
-            System.out.println("\n📈 REPORT E STATISTICHE");
+            System.out.println("\n REPORT E STATISTICHE");
             System.out.println("-".repeat(30));
-            System.out.println("1. 💰 Bilancio Mensile");
+            System.out.println("1. Bilancio Mensile");
             System.out.println("2. Spese per Categoria");
-            System.out.println("3. 📈 Trend Mensile");
-            System.out.println("0. ⬅️  Torna al Menu Principale");
+            System.out.println("3. Trend Mensile");
+            System.out.println("0. Torna al Menu Principale");
             System.out.println("-".repeat(30));
 
             String choice = readUserInput("Seleziona un'opzione: ");
@@ -451,8 +447,8 @@ public class FinanceCLI {
                 case "3" -> showMonthlyTrend();
                 case "0" -> backToMain = true;
                 default -> {
-                    System.out.println("❌ Opzione non valida. Riprova!");
-                    System.out.println("💡 Inserisci un numero tra 0 e 3");
+                    System.out.println(" Opzione non valida. Riprova!");
+                    System.out.println(" Inserisci un numero tra 0 e 3");
                 }
             }
         }
@@ -460,61 +456,61 @@ public class FinanceCLI {
 
     private void showMonthlyBalance() {
         YearMonth month = readPeriod();
-        System.out.println("\n💰 BILANCIO " + month);
+        System.out.println("\n BILANCIO " + month);
         System.out.println("-".repeat(30));
-        
+
         Map<String, BigDecimal> balance = financeService.getMonthlyBalance(month);
-        
-        System.out.println("💚 Entrate: " + balance.getOrDefault("income", BigDecimal.ZERO) + " EUR");
-        System.out.println("💸 Spese: " + balance.getOrDefault("expenses", BigDecimal.ZERO) + " EUR");
-        System.out.println("📈 Investimenti: " + balance.getOrDefault("investments", BigDecimal.ZERO) + " EUR");
+
+        System.out.println("Entrate: " + balance.getOrDefault("income", BigDecimal.ZERO) + " EUR");
+        System.out.println("Spese: " + balance.getOrDefault("expenses", BigDecimal.ZERO) + " EUR");
+        System.out.println("Investimenti: " + balance.getOrDefault("investments", BigDecimal.ZERO) + " EUR");
         System.out.println("-".repeat(30));
-        System.out.println("💰 Bilancio: " + balance.getOrDefault("balance", BigDecimal.ZERO) + " EUR");
+        System.out.println("Bilancio: " + balance.getOrDefault("balance", BigDecimal.ZERO) + " EUR");
     }
 
     private void showExpensesByCategory() {
         System.out.println("\nSPESE PER CATEGORIA");
         System.out.println("-".repeat(30));
-        
+
         Map<String, BigDecimal> expenses = financeService.getExpensesByCategory();
-        
+
         if (expenses.isEmpty()) {
-            System.out.println("📭 Nessuna spesa registrata.");
+            System.out.println("Nessuna spesa registrata.");
             return;
         }
-        
+
         expenses.entrySet().stream()
-            .sorted(Map.Entry.<String, BigDecimal>comparingByValue().reversed())
-            .forEach(entry -> 
-                System.out.println("📁 " + entry.getKey() + ": " + entry.getValue() + " EUR"));
+                .sorted(Map.Entry.<String, BigDecimal>comparingByValue().reversed())
+                .forEach(entry ->
+                        System.out.println("📁 " + entry.getKey() + ": " + entry.getValue() + " EUR"));
     }
 
     private void showMonthlyTrend() {
-        System.out.println("\n📈 TREND ULTIMI 6 MESI");
+        System.out.println("\nTREND ULTIMI 6 MESI");
         System.out.println("-".repeat(30));
-        
+
         Map<YearMonth, BigDecimal> trend = financeService.getMonthlyTrend(6);
-        
+
         if (trend.isEmpty()) {
-            System.out.println("📭 Dati insufficienti per il trend.");
+            System.out.println("Dati insufficienti per il trend.");
             return;
         }
-        
+
         trend.entrySet().stream()
-            .sorted(Map.Entry.comparingByKey())
-            .forEach(entry -> 
-                System.out.println("📅 " + entry.getKey() + ": " + entry.getValue() + " EUR"));
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry ->
+                        System.out.println(entry.getKey() + ": " + entry.getValue() + " EUR"));
     }
 
     private void showSettingsMenu() {
         boolean backToMain = false;
-        
+
         while (!backToMain) {
-            System.out.println("\n⚙️ IMPOSTAZIONI");
+            System.out.println("\n IMPOSTAZIONI");
             System.out.println("-".repeat(20));
-            System.out.println("1. 💱 Imposta Valuta Predefinita");
+            System.out.println("1. Imposta Valuta Predefinita");
             System.out.println("2. Strategia Budget");
-            System.out.println("0. ⬅️  Torna al Menu Principale");
+            System.out.println("0. Torna al Menu Principale");
             System.out.println("-".repeat(20));
 
             String choice = readUserInput("Seleziona un'opzione: ");
@@ -523,29 +519,29 @@ public class FinanceCLI {
                 case "2" -> setBudgetStrategy();
                 case "0" -> backToMain = true;
                 default -> {
-                    System.out.println("❌ Opzione non valida. Riprova!");
-                    System.out.println("💡 Inserisci un numero tra 0 e 2");
+                    System.out.println("Opzione non valida. Riprova!");
+                    System.out.println("Inserisci un numero tra 0 e 2");
                 }
             }
         }
     }
 
     private void setDefaultCurrency() {
-        System.out.println("\n💱 IMPOSTA VALUTA PREDEFINITA");
+        System.out.println("\n IMPOSTA VALUTA PREDEFINITA");
         System.out.println("-".repeat(30));
         System.out.println("Valuta attuale: " + financeService.getDefaultCurrency());
-        
+
         String newCurrency = readCurrency();
         financeService.setDefaultCurrency(newCurrency);
-        
-        System.out.println("✅ Valuta predefinita impostata: " + newCurrency);
+
+        System.out.println(" Valuta predefinita impostata: " + newCurrency);
     }
 
     private void setBudgetStrategy() {
         System.out.println("\nSTRATEGIA BUDGET");
         System.out.println("-".repeat(25));
-        System.out.println("1. 📉 Conservativa");
-        System.out.println("2. 📈 Aggressiva");
+        System.out.println("1. Conservativa");
+        System.out.println("2. Aggressiva");
         System.out.println("-".repeat(25));
 
         String choice = readUserInput("Seleziona strategia: ");
@@ -560,12 +556,11 @@ public class FinanceCLI {
 
         if (strategy != null) {
             financeService.setBudgetingStrategy(strategy);
-            System.out.println("✅ Strategia impostata: " + strategy.getStrategyName());
-            System.out.println("📝 " + strategy.getDescription());
+            System.out.println("Strategia impostata: " + strategy.getStrategyName());
+            System.out.println(strategy.getDescription());
         }
     }
 
-    // Metodi di utilità per l'input
     private String readUserInput(String prompt) {
         System.out.print(prompt);
         return scanner.nextLine();
@@ -577,12 +572,12 @@ public class FinanceCLI {
                 String input = readUserInput(prompt);
                 BigDecimal amount = new BigDecimal(input.replace(",", "."));
                 if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-                    System.out.println("❌ L'importo deve essere positivo.");
+                    System.out.println("L'importo deve essere positivo.");
                     continue;
                 }
                 return amount;
             } catch (NumberFormatException e) {
-                System.out.println("❌ Inserisci un numero valido.");
+                System.out.println("Inserisci un numero valido.");
             }
         }
     }
@@ -601,21 +596,21 @@ public class FinanceCLI {
                 }
                 return YearMonth.parse(input, DateTimeFormatter.ofPattern("MM/yyyy"));
             } catch (DateTimeParseException e) {
-                System.out.println("❌ Formato non valido. Usa MM/yyyy (es: 03/2025).");
+                System.out.println("Formato non valido. Usa MM/yyyy (es: 03/2025).");
             }
         }
     }
 
     private Category selectCategory(String type) {
-        System.out.println("\n📁 Seleziona categoria per " + type + ":");
-        
+        System.out.println("\n Seleziona categoria per " + type + ":");
+
         List<Category> allCategories = getAllCategoriesFlat();
-        
+
         for (int i = 0; i < allCategories.size(); i++) {
             Category cat = allCategories.get(i);
             System.out.println((i + 1) + ". " + cat.getFullPath());
         }
-        
+
         while (true) {
             try {
                 String input = readUserInput("Seleziona numero categoria: ");
@@ -623,10 +618,10 @@ public class FinanceCLI {
                 if (index >= 0 && index < allCategories.size()) {
                     return allCategories.get(index);
                 } else {
-                    System.out.println("❌ Numero non valido.");
+                    System.out.println("Numero non valido.");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("❌ Inserisci un numero valido.");
+                System.out.println("Inserisci un numero valido.");
             }
         }
     }
@@ -651,11 +646,17 @@ public class FinanceCLI {
         return StringEscapeUtils.escapeHtml4(input.trim());
     }
 
-    private String getTransactionIcon(TransactionType type) {
-        return switch (type) {
-            case INCOME -> "💚";
-            case EXPENSE -> "💸";
-            case INVESTMENT -> "📈";
-        };
+    /**
+     * Punto di ingresso principale dell'applicazione.
+     */
+    public static void main(String[] args) {
+        try {
+            FinanceCLI cli = new FinanceCLI();
+            cli.start();
+        } catch (Exception e) {
+            System.err.println("Errore durante l'avvio dell'applicazione: " + e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 }

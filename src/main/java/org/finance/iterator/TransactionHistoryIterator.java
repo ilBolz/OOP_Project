@@ -1,13 +1,14 @@
 package org.finance.iterator;
 
 import org.finance.model.Transaction;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * Implementazione del pattern Iterator per la navigazione storica delle transazioni.
- * Supporta la navigazione in ordine cronologico (normale e inverso).
+ * Implementation of the Iterator pattern for historical navigation of transactions.
+ * Supports navigation in chronological order (normal and reverse).
  */
 public class TransactionHistoryIterator implements Iterator<Transaction> {
     private final List<Transaction> transactions;
@@ -15,13 +16,13 @@ public class TransactionHistoryIterator implements Iterator<Transaction> {
     private final boolean reverse;
 
     public TransactionHistoryIterator(List<Transaction> transactions, boolean reverse) {
-        this.transactions = List.copyOf(transactions); // Copia immutabile per sicurezza
+        this.transactions = List.copyOf(transactions);
         this.reverse = reverse;
         this.currentIndex = reverse ? transactions.size() - 1 : 0;
     }
 
     public TransactionHistoryIterator(List<Transaction> transactions) {
-        this(transactions, false); // Default: ordine cronologico normale
+        this(transactions, false);
     }
 
     @Override
@@ -40,45 +41,13 @@ public class TransactionHistoryIterator implements Iterator<Transaction> {
         }
 
         Transaction transaction = transactions.get(currentIndex);
-        
+
         if (reverse) {
             currentIndex--;
         } else {
             currentIndex++;
         }
-        
+
         return transaction;
-    }
-
-    /**
-     * Resetta l'iteratore alla posizione iniziale.
-     */
-    public void reset() {
-        this.currentIndex = reverse ? transactions.size() - 1 : 0;
-    }
-
-    /**
-     * Ottiene la posizione corrente dell'iteratore.
-     */
-    public int getCurrentPosition() {
-        if (reverse) {
-            return transactions.size() - 1 - currentIndex;
-        } else {
-            return currentIndex;
-        }
-    }
-
-    /**
-     * Ottiene il numero totale di transazioni.
-     */
-    public int getTotalCount() {
-        return transactions.size();
-    }
-
-    /**
-     * Verifica se l'iteratore sta navigando in ordine inverso.
-     */
-    public boolean isReverse() {
-        return reverse;
     }
 }

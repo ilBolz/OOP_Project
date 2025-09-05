@@ -24,7 +24,6 @@ L’applicazione è sicura, manutenibile e modulare, pensata per dimostrare cono
 - **Logging** con `java.util.logging`
 - **JUnit 5** per test unitari
 - **Mockito** per mocking delle dipendenze nei test
-- **SQLite (via JDBC)** per la persistenza opzionale
 - **Stream API & Lambdas** per filtraggio e aggregazione transazioni
 - **IoC (Google Guice)** per la gestione delle dipendenze
 
@@ -65,7 +64,7 @@ L’applicazione è sicura, manutenibile e modulare, pensata per dimostrare cono
 
 - **Model**: `Transaction`, `Category`, `Budget`, `User`.
 - **Service**: `TransactionService`, `BudgetService`, `ReportService`.
-- **Persistence**: CSV/JSON con librerie `commons-csv` e `org.json`, opzionale SQLite.
+- **Persistence**: CSV/JSON con librerie `commons-csv` e `org.json`.
 - **Controller/CLI**: interfaccia testuale per input/output.
 - **Logging**: `LoggerManager` (singleton).
 - **Testing**: JUnit 5 + Mockito.
@@ -287,7 +286,7 @@ Interfaccia utente completa per uso reale con menu intuitivi e funzionalità ava
 
 ## Prossimi Sviluppi 🚧
 
-- [ ] Persistenza dati (CSV/JSON/SQLite)
+- [ ] Persistenza dati (CSV/JSON)
 - [ ] Pattern Memento per undo/redo
 - [ ] Pattern Builder per report complessi
 - [ ] Chain of Responsibility per validazioni

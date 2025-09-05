@@ -4,22 +4,22 @@ import org.finance.model.*;
 import java.math.BigDecimal;
 
 /**
- * Factory per la creazione dinamica di transazioni.
- * Implementa il pattern Factory Method.
+ * Factory for the dynamic creation of transactions.
  */
 public class TransactionFactory {
 
     /**
-     * Crea una transazione del tipo specificato.
-     * 
-     * @param type Il tipo di transazione da creare
-     * @param amount L'importo della transazione
-     * @param description La descrizione della transazione
-     * @param category La categoria della transazione
-     * @param currency La valuta della transazione
-     * @return La transazione creata
-     * @throws IllegalArgumentException se il tipo non è supportato
+     * Creates a transaction of the specified type.
+     *
+     * @param type The type of transaction to create
+     * @param amount The amount of the transaction
+     * @param description The description of the transaction
+     * @param category The category of the transaction
+     * @param currency The currency of the transaction
+     * @return The created transaction
+     * @throws IllegalArgumentException if the type is not supported
      */
+
     public static Transaction createTransaction(TransactionType type, BigDecimal amount, 
                                                String description, Category category, String currency) {
         return switch (type) {
@@ -31,7 +31,7 @@ public class TransactionFactory {
     }
 
     /**
-     * Crea una transazione di entrata.
+     * Create an income transaction.
      */
     public static IncomeTransaction createIncomeTransaction(BigDecimal amount, String description, 
                                                            Category category, String currency) {
@@ -39,7 +39,7 @@ public class TransactionFactory {
     }
 
     /**
-     * Crea una transazione di spesa.
+     * Create an expense transaction.
      */
     public static ExpenseTransaction createExpenseTransaction(BigDecimal amount, String description, 
                                                              Category category, String currency) {
@@ -47,7 +47,7 @@ public class TransactionFactory {
     }
 
     /**
-     * Crea una transazione di investimento.
+     * Create an investment transaction.
      */
     public static InvestmentTransaction createInvestmentTransaction(BigDecimal amount, String description, 
                                                                    Category category, String currency) {

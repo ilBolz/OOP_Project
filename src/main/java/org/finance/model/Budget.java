@@ -31,6 +31,21 @@ public class Budget {
             throw new IllegalArgumentException("Budget amount must be positive");
         }
     }
+    
+    // Costruttore per il caricamento dal database
+    public Budget(String id, Category category, BigDecimal amount, YearMonth period) {
+        this.id = Objects.requireNonNull(id, "ID cannot be null");
+        this.category = Objects.requireNonNull(category, "Category cannot be null");
+        this.amount = Objects.requireNonNull(amount, "Amount cannot be null");
+        this.period = Objects.requireNonNull(period, "Period cannot be null");
+        this.currency = "EUR"; // Default currency dal database
+        this.spent = BigDecimal.ZERO;
+        this.createdAt = LocalDate.now();
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Budget amount must be positive");
+        }
+    }
 
     /**
      * Aggiunge una spesa al budget corrente.

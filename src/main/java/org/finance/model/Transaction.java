@@ -27,6 +27,18 @@ public abstract class Transaction {
         
         validateAmount(amount);
     }
+    
+    // Costruttore per il caricamento dal database
+    protected Transaction(String id, BigDecimal amount, String description, Category category, String currency, LocalDateTime timestamp) {
+        this.id = Objects.requireNonNull(id, "ID cannot be null");
+        this.amount = Objects.requireNonNull(amount, "Amount cannot be null");
+        this.description = Objects.requireNonNull(description, "Description cannot be null");
+        this.category = Objects.requireNonNull(category, "Category cannot be null");
+        this.currency = Objects.requireNonNull(currency, "Currency cannot be null");
+        this.timestamp = Objects.requireNonNull(timestamp, "Timestamp cannot be null");
+        
+        validateAmount(amount);
+    }
 
     /**
      * Template method per la validazione dell'importo.
@@ -52,6 +64,11 @@ public abstract class Transaction {
     public LocalDateTime getTimestamp() { return timestamp; }
     public Category getCategory() { return category; }
     public String getCurrency() { return currency; }
+    
+    // Metodo helper per ottenere la data (senza orario)
+    public java.time.LocalDate getDate() { 
+        return timestamp.toLocalDate(); 
+    }
 
     @Override
     public boolean equals(Object o) {

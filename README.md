@@ -21,6 +21,8 @@ L’applicazione è sicura, manutenibile e modulare, pensata per dimostrare cono
 - **Java SE 17**
 - **Collections & Generics** (gestione di liste e mappe di transazioni)
 - **Java I/O** (lettura/scrittura CSV e JSON)
+- **H2 Database** (persistenza locale dei dati)
+- **JDBC** (accesso ai dati)
 - **Logging** con `java.util.logging`
 - **JUnit 5** per test unitari
 - **Mockito** per mocking delle dipendenze nei test
@@ -64,10 +66,79 @@ L’applicazione è sicura, manutenibile e modulare, pensata per dimostrare cono
 
 - **Model**: `Transaction`, `Category`, `Budget`, `User`.
 - **Service**: `TransactionService`, `BudgetService`, `ReportService`.
-- **Persistence**: CSV/JSON con librerie `commons-csv` e `org.json`.
+- **Persistence**: Database H2 locale con pattern Repository.
 - **Controller/CLI**: interfaccia testuale per input/output.
 - **Logging**: `LoggerManager` (singleton).
 - **Testing**: JUnit 5 + Mockito.
+
+---
+
+## Persistenza Dati
+
+Il progetto implementa la persistenza dei dati utilizzando un database H2 locale che garantisce:
+
+### 🗄️ **Database H2**
+
+- **Database locale**: `./data/finance_db` (creato automaticamente)
+- **Connessione JDBC**: gestita tramite il pattern Singleton (`DatabaseManager`)
+- **Schema automatico**: tabelle create all'avvio dell'applicazione
+- **Transazioni ACID**: garantisce integrità dei dati
+
+### 📊 **Schema del Database**
+
+```sql
+-- Tabella Categorie (supporta gerarchie)
+CREATE TABLE categories (
+    name VARCHAR(100) PRIMARY KEY,
+    description VARCHAR(500),
+    parent_name VARCHAR(100),
+    FOREIGN KEY (parent_name) REFERENCES categories(name)
+);
+
+-- Tabella Transazioni
+CREATE TABLE transactions (
+    id VARCHAR(100) PRIMARY KEY,
+    amount DECIMAL(15,2) NOT NULL,
+    description VARCHAR(500),
+    timestamp TIMESTAMP NOT NULL,
+    category_name VARCHAR(100),
+    type VARCHAR(20) NOT NULL,
+    currency VARCHAR(10) DEFAULT 'EUR',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_name) REFERENCES categories(name)
+);
+
+-- Tabella Budget
+CREATE TABLE budgets (
+    id VARCHAR(100) PRIMARY KEY,
+    category_name VARCHAR(100) NOT NULL,
+    limit_amount DECIMAL(15,2) NOT NULL,
+    period VARCHAR(10) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_name) REFERENCES categories(name)
+);
+```
+
+### 🏗️ **Pattern Repository**
+
+- **`Repository<T, ID>`**: interfaccia generica per operazioni CRUD
+- **`TransactionRepository`**: gestione transazioni con query avanzate
+- **`CategoryRepository`**: gestione categorie e gerarchie
+- **`BudgetRepository`**: gestione budget con filtri per periodo
+
+### 🔧 **Dependency Injection**
+
+- **Google Guice**: gestione automatica delle dipendenze
+- **Singleton Pattern**: istanza unica di repository e servizi
+- **Provider Methods**: risoluzione delle dipendenze circolari
+
+### 💾 **Funzionalità Implementate**
+
+- ✅ **Salvataggio automatico**: ogni operazione persiste immediatamente
+- ✅ **Caricamento all'avvio**: dati recuperati automaticamente dal database
+- ✅ **Query ottimizzate**: ricerche per data, categoria, tipo, importo
+- ✅ **Integrità referenziale**: vincoli di chiave esterna
+- ✅ **Gestione errori**: rollback automatico in caso di errori
 
 ---
 
@@ -286,7 +357,7 @@ Interfaccia utente completa per uso reale con menu intuitivi e funzionalità ava
 
 ## Prossimi Sviluppi 🚧
 
-- [ ] Persistenza dati (CSV/JSON)
+- [x] **Persistenza dati con H2 Database** → **COMPLETATA!**
 - [ ] Pattern Memento per undo/redo
 - [ ] Pattern Builder per report complessi
 - [ ] Chain of Responsibility per validazioni

@@ -1,41 +1,36 @@
 package org.finance.repository;
-
 import java.util.List;
 import java.util.Optional;
-
 /**
- * Interfaccia generica per la persistenza dei dati.
- * Implementa il pattern Repository per astrarre la logica di accesso ai dati.
+ * Generic interface for data persistence.
+ * Implements the Repository pattern to abstract data access logic.
  */
 public interface Repository<T, ID> {
-    
     /**
-     * Salva un'entità nel repository.
+     * Saves an entity in the repository.
      */
     T save(T entity);
-    
     /**
-     * Trova un'entità per ID.
+     * Finds an entity by ID.
      */
     Optional<T> findById(ID id);
-    
     /**
-     * Trova tutte le entità.
+     * Finds all entities.
      */
     List<T> findAll();
-    
     /**
-     * Elimina un'entità per ID.
+     * Deletes an entity by ID.
      */
     void deleteById(ID id);
-    
     /**
-     * Verifica se esiste un'entità con l'ID specificato.
+     * Checks if an entity exists with the specified ID.
      */
     boolean existsById(ID id);
-    
     /**
-     * Conta il numero totale di entità.
+     * Counts the total number of entities.
      */
     long count();
 }
+
+
+

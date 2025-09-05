@@ -1,0 +1,73 @@
+@startuml Architecture_Overview
+
+!theme plain
+title Personal Finance Manager - Architecture
+
+package "Presentation" {
+    [CLI Interface]
+}
+
+package "Business Logic" {
+    [FinanceService]
+}
+
+package "Design Patterns" {
+    [Factory] <<Factory>>
+    [Composite] <<Composite>>
+    [Iterator] <<Iterator>>  
+    [Strategy] <<Strategy>>
+    [Observer] <<Observer>>
+    [Singleton] <<Singleton>>
+}
+
+package "Data Access" {
+    [Repository Layer]
+    [H2 Database]
+}
+
+package "Core Technologies" {
+    [Collections & Generics]
+    [Stream API & Lambdas]
+    [Exception Handling]
+    [JUnit Testing]
+    [Google Guice DI]
+}
+
+' Relationships
+[CLI Interface] --> [FinanceService]
+[FinanceService] --> [Factory]
+[FinanceService] --> [Strategy]
+[FinanceService] --> [Observer]
+[FinanceService] --> [Repository Layer]
+[Repository Layer] --> [Singleton]
+[Repository Layer] --> [H2 Database]
+
+[FinanceService] --> [Collections & Generics]
+[FinanceService] --> [Stream API & Lambdas]
+[CLI Interface] --> [Exception Handling]
+
+note as PatternNote
+**Required Patterns (16pts):**
+✅ Factory - Transaction creation
+✅ Composite - Category hierarchy  
+✅ Iterator - History navigation
+✅ Exception Shielding - Error handling
+
+**Bonus Patterns (+19pts):**
+✅ Strategy - Budgeting algorithms
+✅ Observer - Budget notifications
+✅ Singleton - Database manager
+end note
+
+note as TechNote
+**Core Technologies:**
+✅ Java SE 17
+✅ Collections & Generics
+✅ Java I/O (Database)  
+✅ Logging
+✅ JUnit 5 Testing
+✅ Stream API
+✅ Dependency Injection
+end note
+
+@enduml

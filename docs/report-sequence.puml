@@ -1,0 +1,73 @@
+@startuml Report_Generation_Sequence
+
+!theme plain
+title Generazione Report - Sequence Diagram
+
+actor User as U
+participant "CLI" as CLI
+participant "FinanceService" as Service
+participant "TransactionIterator" as Iterator
+participant "BudgetingStrategy" as Strategy
+participant "Database" as DB
+
+== Richiesta Report ==
+
+U -> CLI: Richiede report finanziario
+activate CLI
+
+== Raccolta Dati ==
+
+CLI -> Service: getAllTransactions()
+activate Service
+
+Service -> DB: findAll()
+activate DB
+DB --> Service: List<Transaction>
+deactivate DB
+
+Service -> Iterator: new TransactionHistoryIterator(transactions)
+activate Iterator
+note right of Iterator: **Iterator Pattern**\nNavigazione cronologica
+
+== Elaborazione Dati ==
+
+loop Per ogni transazione
+    CLI -> Iterator: hasNext() / next()
+    Iterator --> CLI: Transaction
+end
+
+CLI -> Service: calculateTotalIncome()
+Service -> Service: Filtra con Stream API
+note right: Stream API & Lambdas:\nfilter + map + reduce
+Service --> CLI: Totale entrate
+
+CLI -> Service: calculateTotalExpenses()  
+Service --> CLI: Totale spese
+
+== Confronto Strategie ==
+
+CLI -> Strategy: calculateBudget() [Conservative]
+activate Strategy
+Strategy --> CLI: Budget conservativo
+deactivate Strategy
+
+CLI -> Strategy: calculateBudget() [Aggressive]
+activate Strategy  
+Strategy --> CLI: Budget aggressivo
+deactivate Strategy
+note right of Strategy: **Strategy Pattern**\nAlgoritmi budgeting
+
+== Generazione Output ==
+
+CLI -> CLI: Formatta report
+CLI -> U: 📊 REPORT FINANZIARIO
+CLI -> U: 💰 Entrate: €X,XXX
+CLI -> U: 💸 Spese: €X,XXX  
+CLI -> U: 📈 Bilancio: €X,XXX
+CLI -> U: � Strategie Budget
+
+deactivate Iterator
+deactivate Service
+deactivate CLI
+
+@enduml

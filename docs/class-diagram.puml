@@ -1,0 +1,97 @@
+@startuml PersonalFinanceManager_ClassDiagram
+
+!theme plain
+title Personal Finance Manager - Class Diagram
+
+' Core Model
+abstract class Transaction {
+    -id: String
+    -amount: BigDecimal
+    -description: String
+    +getBalanceImpact(): BigDecimal {abstract}
+}
+
+class IncomeTransaction {
+    +getBalanceImpact(): BigDecimal
+}
+
+class ExpenseTransaction {
+    +getBalanceImpact(): BigDecimal
+}
+
+class Category {
+    -name: String
+    -parent: Category
+    -subcategories: Set<Category>
+    +addSubcategory(Category): void
+    +getFullPath(): String
+}
+
+class Budget {
+    -category: Category
+    -limit: BigDecimal
+    +isExceeded(): boolean
+}
+
+' Design Patterns
+class TransactionFactory <<Factory>> {
+    +createTransaction(type, amount, description): Transaction {static}
+}
+
+class TransactionHistoryIterator <<Iterator>> {
+    +hasNext(): boolean
+    +next(): Transaction
+}
+
+interface BudgetingStrategy <<Strategy>> {
+    +calculateBudget(): BigDecimal
+}
+
+class ConservativeBudgetingStrategy {
+}
+
+class AggressiveBudgetingStrategy {
+}
+
+interface BudgetObserver <<Observer>> {
+    +onBudgetExceeded(): void
+}
+
+class ConsoleBudgetObserver {
+}
+
+class DatabaseManager <<Singleton>> {
+    +getInstance(): DatabaseManager {static}
+}
+
+' Service Layer
+class FinanceService {
+    +addTransaction(Transaction): void
+    +createBudget(Category, BigDecimal): Budget
+}
+
+' Relationships
+Transaction <|-- IncomeTransaction
+Transaction <|-- ExpenseTransaction
+Transaction --> Category
+Budget --> Category
+
+TransactionFactory ..> Transaction : creates
+BudgetingStrategy <|.. ConservativeBudgetingStrategy  
+BudgetingStrategy <|.. AggressiveBudgetingStrategy
+BudgetObserver <|.. ConsoleBudgetObserver
+
+Category o-- Category : parent-child
+
+FinanceService --> Transaction
+FinanceService --> Budget
+FinanceService --> BudgetObserver
+
+note top of TransactionFactory : **Factory Pattern**\nCreates transaction types
+note top of Category : **Composite Pattern**\nHierarchical categories
+note top of TransactionHistoryIterator : **Iterator Pattern**\nNavigates history
+note top of BudgetingStrategy : **Strategy Pattern**\nBudgeting algorithms
+note top of BudgetObserver : **Observer Pattern**\nBudget notifications
+note right of DatabaseManager : **Singleton Pattern**\nDatabase connection
+
+@enduml
